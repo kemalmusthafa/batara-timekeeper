@@ -471,11 +471,23 @@ export default function Timekeeper() {
                 type="number"
                 min="0"
                 max="60"
-                value={config.warningThresholdMinutes}
+                value={config.warningThresholdMinutes === 0 ? '' : config.warningThresholdMinutes}
                 onChange={(e) => {
-                  const val = parseInt(e.target.value) || 0;
-                  if (val >= 0 && val <= 60) {
-                    setConfig({ ...config, warningThresholdMinutes: val });
+                  const val = e.target.value;
+                  const cleanVal = val.replace(/^0+/, '') || '0';
+                  const numVal = parseInt(cleanVal, 10);
+                  if (!isNaN(numVal) && numVal >= 0 && numVal <= 60) {
+                    setConfig({ ...config, warningThresholdMinutes: numVal });
+                  } else if (val === '') {
+                    setConfig({ ...config, warningThresholdMinutes: 0 });
+                  }
+                }}
+                onBlur={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  if (isNaN(val) || val < 0) {
+                    setConfig({ ...config, warningThresholdMinutes: 0 });
+                  } else if (val > 60) {
+                    setConfig({ ...config, warningThresholdMinutes: 60 });
                   }
                 }}
                 className={`w-full px-4 py-2 border-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono ${
