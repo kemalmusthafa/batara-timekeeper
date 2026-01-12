@@ -10,6 +10,7 @@ export interface Session {
   endAt: number;
   status: 'finished' | 'aborted';
   effectiveDurationMs: number;
+  overdueMs?: number; // Waktu telat dalam milliseconds (jika melebihi target)
 }
 
 export interface PersistedState {

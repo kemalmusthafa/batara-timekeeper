@@ -65,6 +65,7 @@ export function useCountdownTimekeeper() {
   const warningTriggeredRef = useRef<boolean>(false);
   const sessionIdRef = useRef<string | null>(null);
   const lastCountdownRef = useRef<number | null>(null);
+  const finishAlarmTriggeredRef = useRef<boolean>(false);
 
   // Calculate target duration in milliseconds
   const targetDurationMs = config.targetMinutes * 60 * 1000 + config.targetSeconds * 1000;
@@ -164,6 +165,7 @@ export function useCountdownTimekeeper() {
     clearTimer();
     armingStartTimestampRef.current = Date.now();
     warningTriggeredRef.current = false;
+    finishAlarmTriggeredRef.current = false;
     lastCountdownRef.current = null;
 
     intervalRef.current = setInterval(() => {
@@ -197,6 +199,7 @@ export function useCountdownTimekeeper() {
     if (startTimestampRef.current && sessionIdRef.current) {
       const endTime = Date.now();
       const effectiveDuration = endTime - startTimestampRef.current - accumulatedPausedMsRef.current;
+      const overdueMs = effectiveDuration > targetDurationMs ? effectiveDuration - targetDurationMs : 0;
       
       const session: Session = {
         id: sessionIdRef.current,
@@ -206,6 +209,7 @@ export function useCountdownTimekeeper() {
         endAt: endTime,
         status: 'finished',
         effectiveDurationMs: effectiveDuration,
+        overdueMs: overdueMs > 0 ? overdueMs : undefined,
       };
 
       saveSession(session);
@@ -229,6 +233,7 @@ export function useCountdownTimekeeper() {
     accumulatedPausedMsRef.current = 0;
     armingStartTimestampRef.current = null;
     warningTriggeredRef.current = false;
+    finishAlarmTriggeredRef.current = false;
     sessionIdRef.current = null;
 
     clearState();
@@ -256,16 +261,19 @@ export function useCountdownTimekeeper() {
         }
       }
 
-      if (remaining <= 0) {
-        clearTimer();
-        finishSession();
-      } else {
-        // Update display frequently for smooth millisecond animation
-        setStateData(prev => ({
-          ...prev,
-          remainingMs: remaining,
-        }));
+      // Trigger finish alarm when reaching 0 (only once)
+      if (!finishAlarmTriggeredRef.current && remaining <= 0) {
+        finishAlarmTriggeredRef.current = true;
+        if (!stateData.mute && audioEnabled) {
+          beepFinishAlarm();
+        }
       }
+
+      // Update display - allow negative values to show overdue time
+      setStateData(prev => ({
+        ...prev,
+        remainingMs: remaining,
+      }));
     }, TICK_INTERVAL);
 
     // Lower frequency interval for state persistence
@@ -339,6 +347,7 @@ export function useCountdownTimekeeper() {
     if (startTimestampRef.current && sessionIdRef.current) {
       const endTime = Date.now();
       const effectiveDuration = endTime - startTimestampRef.current - accumulatedPausedMsRef.current;
+      const overdueMs = effectiveDuration > targetDurationMs ? effectiveDuration - targetDurationMs : 0;
 
       const session: Session = {
         id: sessionIdRef.current,
@@ -348,6 +357,7 @@ export function useCountdownTimekeeper() {
         endAt: endTime,
         status: 'aborted',
         effectiveDurationMs: effectiveDuration,
+        overdueMs: overdueMs > 0 ? overdueMs : undefined,
       };
 
       saveSession(session);
@@ -371,6 +381,7 @@ export function useCountdownTimekeeper() {
     accumulatedPausedMsRef.current = 0;
     armingStartTimestampRef.current = null;
     warningTriggeredRef.current = false;
+    finishAlarmTriggeredRef.current = false;
     sessionIdRef.current = null;
 
     clearState();
@@ -391,6 +402,7 @@ export function useCountdownTimekeeper() {
     accumulatedPausedMsRef.current = 0;
     armingStartTimestampRef.current = null;
     warningTriggeredRef.current = false;
+    finishAlarmTriggeredRef.current = false;
     sessionIdRef.current = null;
     clearState();
   }, [clearTimer, stateData.mute]);
@@ -433,6 +445,7 @@ export function useCountdownTimekeeper() {
     pauseSession,
     resumeSession,
     abortSession,
+    finishSession,
     resetSession,
     toggleMute,
     enableAudio,

@@ -13,16 +13,19 @@ const ACTIVITY_TYPES = [
 ];
 
 function formatTime(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
-  const milliseconds = Math.floor(ms % 1000);
+  const isNegative = ms < 0;
+  const absMs = Math.abs(ms);
+  const totalSeconds = Math.floor(absMs / 1000);
+  const milliseconds = Math.floor(absMs % 1000);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
+  const sign = isNegative ? '-' : '';
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+    return `${sign}${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
   }
-  return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+  return `${sign}${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
 }
 
 function formatDuration(ms: number): string {
@@ -30,6 +33,11 @@ function formatDuration(ms: number): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}m ${seconds}s`;
+}
+
+function formatOverdue(ms: number): string {
+  if (!ms || ms <= 0) return '';
+  return `+${formatDuration(ms)}`;
 }
 
 function formatDateTime(timestamp: number): string {
@@ -54,6 +62,7 @@ export default function Timekeeper() {
     pauseSession,
     resumeSession,
     abortSession,
+    finishSession,
     resetSession,
     toggleMute,
     enableAudio,
@@ -91,6 +100,13 @@ export default function Timekeeper() {
   };
 
   const getTimerColor = () => {
+    // Show red if overdue (negative remaining time)
+    if (stateData.remainingMs < 0) {
+      return isDarkMode 
+        ? 'text-red-400 drop-shadow-[0_0_20px_rgba(248,113,113,0.8)] animate-pulse'
+        : 'text-red-600 drop-shadow-[0_0_20px_rgba(220,38,38,0.6)] animate-pulse';
+    }
+    
     if (stateData.isWarning) {
       return isDarkMode 
         ? 'text-red-400 drop-shadow-[0_0_20px_rgba(248,113,113,0.8)] animate-pulse'
@@ -274,10 +290,14 @@ export default function Timekeeper() {
                   ⏸ Pause
                 </button>
                 <button
-                  onClick={abortSession}
-                  className="px-5 md:px-6 lg:px-8 py-2 md:py-2.5 lg:py-3 bg-red-600 border-2 border-red-400 text-white hover:bg-red-500 transition-all font-bold text-xs md:text-sm tracking-wider uppercase shadow-lg shadow-red-500/50"
+                  onClick={finishSession}
+                  className={`px-5 md:px-6 lg:px-8 py-2 md:py-2.5 lg:py-3 border-2 text-white hover:opacity-90 transition-all font-bold text-xs md:text-sm tracking-wider uppercase shadow-lg ${
+                    stateData.remainingMs <= 0
+                      ? 'bg-blue-600 border-blue-400 shadow-blue-500/50'
+                      : 'bg-red-600 border-red-400 shadow-red-500/50'
+                  }`}
                 >
-                  ⏹ Stop
+                  {stateData.remainingMs <= 0 ? '✓ Finish' : '⏹ Stop'}
                 </button>
               </>
             )}
@@ -452,12 +472,16 @@ export default function Timekeeper() {
                 min="0"
                 max="60"
                 value={config.warningThresholdMinutes}
-                onChange={(e) => setConfig({ ...config, warningThresholdMinutes: parseInt(e.target.value) || 2 })}
-                disabled={stateData.state !== 'idle'}
-                className={`w-full px-4 py-2 border-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:cursor-not-allowed font-mono ${
+                onChange={(e) => {
+                  const val = parseInt(e.target.value) || 0;
+                  if (val >= 0 && val <= 60) {
+                    setConfig({ ...config, warningThresholdMinutes: val });
+                  }
+                }}
+                className={`w-full px-4 py-2 border-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono ${
                   isDarkMode
-                    ? 'bg-gray-800 border-gray-600 text-white disabled:bg-gray-950 disabled:border-gray-800 disabled:text-gray-600'
-                    : 'bg-white border-gray-300 text-gray-900 disabled:bg-gray-100 disabled:border-gray-200 disabled:text-gray-400'
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               />
             </div>
@@ -533,7 +557,14 @@ export default function Timekeeper() {
                               {session.status === 'finished' ? '✓' : '✕'}
                             </span>
                           </td>
-                          <td className={`py-2 md:py-3 px-2 md:px-3 text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatDuration(session.effectiveDurationMs)}</td>
+                          <td className={`py-2 md:py-3 px-2 md:px-3 text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {formatDuration(session.effectiveDurationMs)}
+                            {session.overdueMs && session.overdueMs > 0 && (
+                              <span className={`ml-2 text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'} font-bold`}>
+                                ({formatOverdue(session.overdueMs)} late)
+                              </span>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
