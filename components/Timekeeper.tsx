@@ -149,9 +149,9 @@ export default function Timekeeper() {
       <div className="w-full">
         {/* Header - F1 Style */}
         <div className={`p-3 md:p-4 lg:p-6 border-b ${isDarkMode ? 'border-gray-800 bg-gradient-to-r from-gray-900 to-black' : 'border-gray-200 bg-gradient-to-r from-gray-50 to-white'}`}>
-          <div className="flex items-center justify-between gap-2 md:gap-4">
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-4">
             {/* Logo - Left */}
-            <div className="flex items-center flex-shrink-0">
+            <div className="flex items-center justify-start">
               <img 
                 src="/profile.png" 
                 alt="Logo" 
@@ -160,20 +160,20 @@ export default function Timekeeper() {
             </div>
 
             {/* Title - Center */}
-            <div className="flex-1 text-center min-w-0 px-2 md:px-4">
-              <h1 className={`text-sm md:text-lg lg:text-xl xl:text-2xl font-bold mb-0.5 md:mb-1 tracking-wider uppercase truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            <div className="text-center min-w-0 px-2 md:px-4">
+              <h1 className={`text-sm md:text-lg lg:text-xl xl:text-2xl font-bold mb-0.5 md:mb-1 tracking-wider uppercase ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Timekeeper Countdown
               </h1>
-              <p className={`text-[10px] md:text-xs lg:text-sm tracking-wide truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p className={`text-[10px] md:text-xs lg:text-sm tracking-wide ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 PT BATARA DHARMA PERSADA
               </p>
             </div>
 
             {/* Dark Mode Toggle - Right */}
-            <div className="flex-shrink-0">
+            <div className="flex items-center justify-end">
               <button
                 onClick={toggleTheme}
-                className={`px-2 md:px-3 lg:px-4 py-1.5 md:py-2 border-2 font-bold text-[10px] md:text-xs tracking-wider uppercase transition-all ${
+                className={`px-2 md:px-3 lg:px-4 py-1.5 md:py-2 border-2 font-bold text-[10px] md:text-xs tracking-wider uppercase transition-all whitespace-nowrap ${
                   isDarkMode
                     ? 'bg-gray-800 border-gray-600 text-white hover:bg-gray-700'
                     : 'bg-gray-100 border-gray-300 text-gray-900 hover:bg-gray-200'
@@ -202,12 +202,12 @@ export default function Timekeeper() {
           }}></div>
           
           {/* State Badge - F1 Style */}
-          <div className="mb-4 md:mb-6 lg:mb-8 relative z-10">
+          <div className="mb-4 md:mb-6 lg:mb-8 relative z-10 flex justify-center items-center flex-wrap gap-2 md:gap-3">
             <span className={`inline-block px-3 md:px-4 lg:px-6 py-1.5 md:py-2 border-2 text-white font-bold text-[10px] md:text-xs lg:text-sm tracking-wider uppercase ${getStateBadgeColor()}`}>
               {getStateLabel()}
             </span>
             {stateData.isWarning && (
-              <span className="ml-2 md:ml-3 inline-block px-3 md:px-4 lg:px-6 py-1.5 md:py-2 border-2 border-red-400 bg-red-600 text-white font-bold animate-pulse text-[10px] md:text-xs lg:text-sm tracking-wider uppercase shadow-lg shadow-red-500/50">
+              <span className="inline-block px-3 md:px-4 lg:px-6 py-1.5 md:py-2 border-2 border-red-400 bg-red-600 text-white font-bold animate-pulse text-[10px] md:text-xs lg:text-sm tracking-wider uppercase shadow-lg shadow-red-500/50">
                 ⚠ Warning
               </span>
             )}
