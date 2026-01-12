@@ -149,7 +149,7 @@ export default function Timekeeper() {
       <div className="w-full">
         {/* Header - F1 Style */}
         <div className={`p-3 md:p-4 lg:p-6 border-b ${isDarkMode ? 'border-gray-800 bg-gradient-to-r from-gray-900 to-black' : 'border-gray-200 bg-gradient-to-r from-gray-50 to-white'}`}>
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-4">
+          <div className="relative grid grid-cols-3 items-center">
             {/* Logo - Left */}
             <div className="flex items-center justify-start">
               <img 
@@ -159,8 +159,8 @@ export default function Timekeeper() {
               />
             </div>
 
-            {/* Title - Center */}
-            <div className="text-center min-w-0 px-2 md:px-4">
+            {/* Title - Center (absolutely centered in viewport) */}
+            <div className="absolute left-1/2 -translate-x-1/2 text-center w-full max-w-full px-4">
               <h1 className={`text-sm md:text-lg lg:text-xl xl:text-2xl font-bold mb-0.5 md:mb-1 tracking-wider uppercase ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Timekeeper Countdown
               </h1>
