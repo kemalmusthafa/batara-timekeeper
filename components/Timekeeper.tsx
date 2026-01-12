@@ -148,10 +148,10 @@ export default function Timekeeper() {
     <div className={`min-h-screen ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
       <div className="w-full">
         {/* Header - F1 Style */}
-        <div className={`p-3 md:p-4 lg:p-6 border-b ${isDarkMode ? 'border-gray-800 bg-gradient-to-r from-gray-900 to-black' : 'border-gray-200 bg-gradient-to-r from-gray-50 to-white'}`}>
-          <div className="relative grid grid-cols-3 items-center">
+        <div className={`relative p-3 md:p-4 lg:p-6 border-b ${isDarkMode ? 'border-gray-800 bg-gradient-to-r from-gray-900 to-black' : 'border-gray-200 bg-gradient-to-r from-gray-50 to-white'}`}>
+          <div className="flex items-center justify-between">
             {/* Logo - Left */}
-            <div className="flex items-center justify-start">
+            <div className="flex items-center justify-start flex-shrink-0 z-10">
               <img 
                 src="/profile.png" 
                 alt="Logo" 
@@ -160,20 +160,22 @@ export default function Timekeeper() {
             </div>
 
             {/* Title - Center (absolutely centered in viewport) */}
-            <div className="absolute left-1/2 -translate-x-1/2 text-center w-full max-w-full px-4">
-              <h1 className={`text-sm md:text-lg lg:text-xl xl:text-2xl font-bold mb-0.5 md:mb-1 tracking-wider uppercase ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Timekeeper Countdown
-              </h1>
-              <p className={`text-[10px] md:text-xs lg:text-sm tracking-wide ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                PT BATARA DHARMA PERSADA
-              </p>
+            <div className="absolute left-0 right-0 flex items-center justify-center pointer-events-none z-0">
+              <div className="text-center px-4">
+                <h1 className={`text-sm md:text-lg lg:text-xl xl:text-2xl font-bold mb-0.5 md:mb-1 tracking-wider uppercase ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Timekeeper Countdown
+                </h1>
+                <p className={`text-[10px] md:text-xs lg:text-sm tracking-wide ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  PT BATARA DHARMA PERSADA
+                </p>
+              </div>
             </div>
 
             {/* Dark Mode Toggle - Right */}
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-end flex-shrink-0 z-10">
               <button
                 onClick={toggleTheme}
-                className={`px-2 md:px-3 lg:px-4 py-1.5 md:py-2 border-2 font-bold text-[10px] md:text-xs tracking-wider uppercase transition-all whitespace-nowrap ${
+                className={`px-2 md:px-3 lg:px-4 py-1.5 md:py-2 border-2 font-bold text-[10px] md:text-xs tracking-wider uppercase transition-all whitespace-nowrap pointer-events-auto ${
                   isDarkMode
                     ? 'bg-gray-800 border-gray-600 text-white hover:bg-gray-700'
                     : 'bg-gray-100 border-gray-300 text-gray-900 hover:bg-gray-200'
